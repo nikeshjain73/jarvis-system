@@ -1,19 +1,20 @@
+# pyrefly: ignore [missing-import]
 from fastapi import FastAPI
 from datetime import datetime
-from pydantic import BaseModel
 
-from app.ai.brain import process_command
+from app.api.commands import router as command_router
+from app.api.devices import router as device_router
 
 
 app = FastAPI(
     title="JARVIS Ecosystem",
     description="Personal AI and Device Ecosystem",
-    version="0.2.0"
+    version="0.2.1"
 )
 
 
-class CommandRequest(BaseModel):
-    command: str
+app.include_router(command_router)
+app.include_router(device_router)
 
 
 @app.get("/")
@@ -22,7 +23,7 @@ def root():
     return {
         "name": "JARVIS",
         "system": "JARVIS Ecosystem",
-        "version": "0.2.0",
+        "version": "0.2.1",
         "status": "online"
     }
 
@@ -32,18 +33,5 @@ def health():
 
     return {
         "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat()
-    }
-
-
-@app.post("/command")
-def command(request: CommandRequest):
-
-    result = process_command(
-        request.command
-    )
-
-    return {
-        "command": request.command,
-        "result": result
+        "timestamp": datetime.now().isoformat()
     }
