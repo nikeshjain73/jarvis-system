@@ -7,6 +7,7 @@ def process_command(command: str):
     intent = detect_intent(command)
 
     if intent.name == "unknown":
+
         return {
             "success": False,
             "message": "I don't understand that command yet.",
@@ -16,6 +17,7 @@ def process_command(command: str):
     tool = get_tool(intent.name)
 
     if tool is None:
+
         return {
             "success": False,
             "message": f"Tool '{intent.name}' is not available.",
@@ -24,13 +26,22 @@ def process_command(command: str):
 
     try:
 
-        if intent.name == "open_application":
+        if intent.target is not None:
 
             result = tool(intent.target)
 
         else:
 
             result = tool()
+
+        # Some tools return dictionaries.
+        # Others return raw data.
+        if isinstance(result, dict):
+
+            return {
+                "intent": intent.name,
+                **result
+            }
 
         return {
             "success": True,
